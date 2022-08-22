@@ -22,7 +22,10 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase)
 });
 
-
+app.get("/urls/:id", (req, res) => {
+  const templateVars = { id: req.params.id, longUrl: urlDatabase[req.params.shortURL]["longURL"] }
+  res.render("urls_show", templateVars)
+})
 
 
 app.get("/hello", (req, res) => {
