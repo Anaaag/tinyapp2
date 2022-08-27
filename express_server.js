@@ -131,6 +131,14 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars);
 })
 
+//LOGOUT
+
+app.post("/logout", (req, res) => {
+
+  res.clearCookie("userId");
+  res.redirect("/login");
+});
+
 
 
 
