@@ -106,6 +106,27 @@ app.post("/login", (req, res) => {
   res.render("registration", templateVars);
   });
 
+  app.post("/register", (req, res) => {
+    const {email, password} = req.body;
+    if (!email || !password) {
+       return res.status(400).send("Error")
+    } 
+    const user = getUserByEmail(email)
+  
+    if (user) {
+      return res.status(400).send("Account already exists")
+    }
+  
+    const userId = generateRandomString(); 
+    users[userId] = {
+      id: userId,
+      email: email,
+      password: password
+    }
+    res.cookie("userId", userId);
+    console.log(users);
+    res.redirect("/urls");
+  });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
