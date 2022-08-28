@@ -1,11 +1,17 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-const cookieParser = require('cookie-parser')
+const cookieSession = reuire('cookie-session');
 const bcrypt = require('bcryptjs')
+const { getUserByEmail } = require('./helpers')
 
 app.set("view engine", "ejs");
-app.use(cookieParser())
+
+
+app.use(cookieSession({
+  name: "session",
+  keys: ["key1"]
+}))
 
 
 function generateRandomString() {
@@ -13,16 +19,6 @@ function generateRandomString() {
 };
 
 
-
-  const getUserByEmail =function(email) {
-    for (let id in users) {
-      if (users[id].email === email) {
-        return users[id]
-      }
-  
-    }
-    return null;
-  }
 
   const urlsForUser = function(id) {
     const usersURLs = {};
@@ -171,11 +167,6 @@ app.post("/logout", (req, res) => {
   res.clearCookie("userId");
   res.redirect("/login");
 });
-
-
-
-
-
 
 
 //REGISTER
