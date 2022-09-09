@@ -53,12 +53,21 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars);
 });
 
+app.get("/", (req, res) => {
+  res.redirect("urls");
+});
+
+app.get("*", (req, res) => {
+  res.sendStatus(404);
+})
 
 // User dashboard
 app.get("/urls", (req, res) => {
    // Check if logged in
   const user = users[req.session.userId];
   if (!user) return res.redirect("/login");
+
+
 
   const usersURLs = urlsForUser(user.id, urlDatabase);
   const templateVars = { urls: usersURLs, user };
@@ -69,7 +78,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
    // Check if logged in
   const user = users[req.session.userId];
-  if (!user) return res.sendStatus(401);
+  if (!user) return res.redirect("/login");
 
   const templateVars = { user };
   res.render("urls_new", templateVars);
@@ -80,10 +89,11 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
    // Check if logged in
   const user = users[req.session.userId];
-  if (!user) return res.sendStatus(401);
+  if (!user) return res.sendStatus(404);
   
   //Check permissions
   const shortURL = req.params.shortURL;
+  if (!urlDatabase[shortURL]) return res.sendStatus(404);
   if (user.id !== urlDatabase[shortURL].userId) return res.sendStatus(403);
 
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user };
@@ -94,6 +104,7 @@ app.get("/urls/:shortURL", (req, res) => {
 // Short url redirection
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
+  if (!urlDatabase[shortURL]) return res.sendStatus(404);
   const longURL = urlDatabase[shortURL]?.longURL;
   res.redirect(longURL);
 });
@@ -118,7 +129,7 @@ app.post("/register", (req, res) => {
     email,
     password: hashedPassword
   };
-
+  req.session.userId = userId;
   res.redirect("/urls");
 });
 
