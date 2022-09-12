@@ -57,18 +57,15 @@ app.get("/", (req, res) => {
   res.redirect("urls");
 });
 
-app.get("*", (req, res) => {
-  res.sendStatus(404);
-})
 
 // User dashboard
 app.get("/urls", (req, res) => {
-   // Check if logged in
+  // Check if logged in
   const user = users[req.session.userId];
   if (!user) return res.redirect("/login");
-
-
-
+  
+  
+  
   const usersURLs = urlsForUser(user.id, urlDatabase);
   const templateVars = { urls: usersURLs, user };
   res.render("urls_index", templateVars);
@@ -76,10 +73,10 @@ app.get("/urls", (req, res) => {
 
 
 app.get("/urls/new", (req, res) => {
-   // Check if logged in
+  // Check if logged in
   const user = users[req.session.userId];
   if (!user) return res.redirect("/login");
-
+  
   const templateVars = { user };
   res.render("urls_new", templateVars);
 });
@@ -87,7 +84,7 @@ app.get("/urls/new", (req, res) => {
 
 //Short url edit page
 app.get("/urls/:shortURL", (req, res) => {
-   // Check if logged in
+  // Check if logged in
   const user = users[req.session.userId];
   if (!user) return res.sendStatus(404);
   
@@ -95,7 +92,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   if (!urlDatabase[shortURL]) return res.sendStatus(404);
   if (user.id !== urlDatabase[shortURL].userId) return res.sendStatus(403);
-
+  
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user };
   res.render("urls_show", templateVars);
 });
@@ -116,7 +113,7 @@ app.post("/register", (req, res) => {
   // Check input fields
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).send("Check input fields");
-
+  
   // Check if already registered
   const user = getUserByEmail(email, users);
   if (user) return res.status(400).send("Account already exists");
@@ -139,12 +136,12 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   if (!email || !password) return res.sendStatus(400);
-
+  
   // Check permissions
   const user = getUserByEmail(email, users);
   if (!user) return res.status(400).send("Invalid Password or Email");
   if (!bcrypt.compareSync(password, user.password)) return res.status(400).send("Invalid Password or Email");
-
+  
   // User logged in
   req.session.userId = user.id;
   res.redirect("/urls");
@@ -153,10 +150,10 @@ app.post("/login", (req, res) => {
 
 //New short url
 app.post("/urls", (req, res) => {
- // Check if logged in
+  // Check if logged in
   const user = users[req.session.userId];
   if (!user) return res.sendStatus(401);
-
+  
   // Add new url to database
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = { longURL: req.body.longURL, userId: user.id };
@@ -168,11 +165,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   // Check if logged in
   const user = users[req.session.userId];
   if (!user) return res.sendStatus(401);
-
+  
   // Check permissions
   const shortURL = req.params.shortURL;
   if (user.id !== urlDatabase[shortURL].userId) return res.sendStatus(403);
-
+  
   // Delete url from database
   delete urlDatabase[shortURL];
   res.redirect("/urls");
@@ -181,14 +178,14 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //Edit short url
 app.post("/urls/:id", (req, res) => {
-   // Check if logged in
+  // Check if logged in
   const user = users[req.session.userId];
   if (!user) return res.sendStatus(401);
-
+  
   // Check permissions
   const shortURL = req.params.id;
   if (user.id !== urlDatabase[shortURL].userId) return res.sendStatus(403);
-
+  
   urlDatabase[shortURL].longURL = req.body.longURL;
   res.redirect("/urls");
 });
@@ -199,6 +196,9 @@ app.post("/logout", (req, res) => {
   res.redirect("/login");
 });
 
+app.get("*", (req, res) => {
+  res.sendStatus(404);
+})
 
 //Run server
 app.listen(PORT, () => {
